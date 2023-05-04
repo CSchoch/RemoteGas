@@ -1,34 +1,31 @@
-#include <Plotter.h>
+#include <Arduino.h>
 #include <Wire.h>
 #include <Adafruit_MCP4725.h>
 Adafruit_MCP4725 dac;
-Plotter p;
 const int gasHandInput = 0;
 const int gasPlusInput = 2;
 const int gasMinusInput = 3;
-const int gasMax = 4500; // Max gas value deviation in mV
-const int gasRefernce = 5000; // Gas reference value in mV when pedal is not pushed
+const int gasMax = 4500;				  // Max gas value deviation in mV
+const int gasRefernce = 5000;			  // Gas reference value in mV when pedal is not pushed
 const int analogControllerVoltage = 5000; // Analog controller input voltage in mV
-const int gasIntervall = 25; // Interwall which increases the gas
+const int gasIntervall = 25;			  // Interwall which increases the gas
 int handGas;
 int handGasValue = gasRefernce;
 int meanInputValue;
-int actualGasValue = 0;    
+int actualGasValue = 0;
 int setGasValue;
 int setGasValueOld = 0;
 unsigned long oldTime;
 unsigned long timer;
 void setup(void)
 {
-	// Serial.begin(9600);
-	// Serial.println("Starting electronic gas");
+	Serial.begin(115200);
+	Serial.println("Starting electronic gas");
 	// For Adafruit MCP4725A1 the address is 0x62 (default) or 0x63 (ADDR pin tied to VCC)
 	// For MCP4725A0 the address is 0x60 or 0x61
 	// For MCP4725A2 the address is 0x64 or 0x65
 	dac.begin(0x60);
 	dac.setNearestActualVoltage(gasRefernce - actualGasValue, analogControllerVoltage, false);
-	p.Begin();
-	p.AddTimeGraph("Werte", 1000, "Handgas", handGas, "Sollwert Winde", actualGasValue, "Sollwert Gesammt", setGasValue);
 	pinMode(gasPlusInput, INPUT);
 	pinMode(gasMinusInput, INPUT);
 }
@@ -72,5 +69,11 @@ void loop(void)
 	// Löschen b_Test
 	meanInputValue = 0.1 * analogRead(1) + 0.9 * meanInputValue;
 	// Serial.println(handGas);
-	p.Plot();
+	// Output Values for Teleplot
+	Serial.print(">Handgas:");
+	Serial.println(handGas);
+	Serial.print(">Sollwert Winde:");
+	Serial.println(actualGasValue);
+	Serial.print(">Sollwert Gesammt:");
+	Serial.println(setGasValue);
 }
